@@ -1,0 +1,180 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Shared Renovate preset for all Spillgebees projects. Stack-agnostic base supporting .NET, TypeScript, and mixed repositories.",
+  "extends": [
+    "config:best-practices"
+  ],
+  "schedule": [
+    "every weekday"
+  ],
+  "timezone": "Europe/Luxembourg",
+  "semanticCommits": "disabled",
+  "commitMessagePrefix": ":arrow_up:",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "branchPrefix": "chore/renovate-",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 6am on monday"
+    ]
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "security"
+    ],
+    "schedule": [
+      "at any time"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Disable routine updates for ASP.NET Core framework packages. Consumer-facing libraries (e.g. Blazor component libraries) should not auto-bump their framework minimum versions, as this forces downstream consumers to upgrade their target framework. This avoids the MudBlazor problem where a library update unexpectedly requires a new .NET SDK.",
+      "matchManagers": [
+        "nuget"
+      ],
+      "matchPackageNames": [
+        "/^Microsoft\\.AspNetCore\\./",
+        "/^Microsoft\\.Extensions\\./"
+      ],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Group .NET SDK updates from global.json into a single PR.",
+      "matchManagers": [
+        "nuget"
+      ],
+      "matchDepNames": [
+        "dotnet-sdk"
+      ],
+      "groupName": ".NET SDK"
+    },
+    {
+      "description": "Group .NET build tooling (MinVer, ReproducibleBuilds) into a single PR.",
+      "matchManagers": [
+        "nuget"
+      ],
+      "matchPackageNames": [
+        "MinVer",
+        "DotNet.ReproducibleBuilds"
+      ],
+      "groupName": ".NET build tooling"
+    },
+    {
+      "description": "Group .NET test framework packages (TUnit, AwesomeAssertions, bUnit, xUnit, test SDK, coverlet) into a single PR to keep test infrastructure updates atomic.",
+      "matchManagers": [
+        "nuget"
+      ],
+      "matchPackageNames": [
+        "TUnit",
+        "TUnit.Engine",
+        "TUnit.Assertions",
+        "AwesomeAssertions",
+        "bunit",
+        "xunit.v3",
+        "xunit.runner.visualstudio",
+        "Microsoft.NET.Test.Sdk",
+        "coverlet.collector"
+      ],
+      "groupName": ".NET test framework"
+    },
+    {
+      "description": "Group .NET dev tooling (CSharpier, Husky) into a single PR.",
+      "matchManagers": [
+        "nuget"
+      ],
+      "matchPackageNames": [
+        "CSharpier",
+        "Husky"
+      ],
+      "groupName": ".NET dev tooling"
+    },
+    {
+      "description": "Exclude vendored local packages (Transmodel). These are local .nupkg files checked into the repository, not published on nuget.org.",
+      "matchPackageNames": [
+        "XmlSchemaClassGenerator-beta",
+        "XmlSchemaClassGenerator.Analyzer"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Group React ecosystem packages (react, react-dom, and their type definitions) into a single PR.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom"
+      ],
+      "groupName": "React"
+    },
+    {
+      "description": "Group all TanStack packages (@tanstack/*) into a single PR.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "/^@tanstack\\//"
+      ],
+      "groupName": "TanStack"
+    },
+    {
+      "description": "Group Vite ecosystem packages (vite, @vitejs/*) into a single PR.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "vite",
+        "/^@vitejs\\//"
+      ],
+      "groupName": "Vite"
+    },
+    {
+      "description": "Group Tailwind CSS packages (tailwindcss, @tailwindcss/*) into a single PR.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "/^tailwindcss/",
+        "/^@tailwindcss\\//"
+      ],
+      "groupName": "Tailwind CSS"
+    },
+    {
+      "description": "Group Biome linting and formatting packages into a single PR.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "/^@biomejs\\//"
+      ],
+      "groupName": "Biome"
+    },
+    {
+      "description": "Group all GitHub Actions updates into a single PR to reduce noise from SHA pin digest updates.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "Automerge minor and patch updates for npm devDependencies. These are build/dev tools that don't affect production bundles and are safe to merge automatically.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    }
+  ]
+}
