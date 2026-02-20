@@ -1,0 +1,46 @@
+# Organization-wide default settings applied to all Spillgebees repositories.
+# Per-repo overrides go in .github/repos/<repo-name>.yml
+#
+# Reference: https://github.com/github/safe-settings
+#
+# NOTE: Branch protection requires a paid plan for private repos.
+# Private repos on the Free plan will not receive branch protection --
+# safe-settings will log errors for those repos, which is expected.
+
+# Repository settings applied to every repo in the org
+repository:
+  allow_squash_merge: true
+  allow_merge_commit: false
+  allow_rebase_merge: false
+  allow_auto_merge: true
+  delete_branch_on_merge: true
+  allow_update_branch: true
+
+# Branch protection applied to the default branch of every repo
+branches:
+  - name: default
+    protection:
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: true
+        require_last_push_approval: true
+        dismissal_restrictions:
+          users: []
+          teams: []
+      # Status checks vary per repo -- {{EXTERNALLY_DEFINED}} preserves
+      # whatever checks are already configured in each repo's GitHub settings.
+      # New repos will start with no required status checks.
+      required_status_checks:
+        strict: false
+        contexts:
+          - "{{EXTERNALLY_DEFINED}}"
+      # enforce_admins is false so the org admin (igotinfected) can bypass
+      # PR requirements and status checks when needed. Force push and deletion
+      # protections still apply regardless of this setting.
+      enforce_admins: false
+      restrictions: null
+      required_linear_history: true
+      required_conversation_resolution: true
+      allow_force_pushes: false
+      allow_deletions: false

@@ -1,0 +1,7 @@
+# safe-settings runtime configuration
+# Reference: https://github.com/github/safe-settings#restricting-safe-settings-to-specific-repos
+
+restrictedRepos:
+  exclude:
+    - admin
+    - .github
