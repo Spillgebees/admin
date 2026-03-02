@@ -70,8 +70,9 @@
       ],
       "matchPackageNames": [
         "TUnit",
-        "TUnit.Engine",
         "TUnit.Assertions",
+        "TUnit.Core",
+        "TUnit.Engine",
         "AwesomeAssertions",
         "bunit",
         "xunit.v3",
