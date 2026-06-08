@@ -2,7 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Shared Renovate preset for all Spillgebees projects. Stack-agnostic base supporting .NET, TypeScript, and mixed repositories.",
   "extends": [
-    "config:best-practices"
+    "config:best-practices",
+    "customManagers:biomeVersions"
   ],
   "schedule": [
     "every weekday"
