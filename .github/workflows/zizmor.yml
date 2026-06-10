@@ -1,0 +1,30 @@
+name: "\U0001f308 Workflow Security Analysis"
+
+on:
+  # reusable: call from other repos to audit their workflows,
+  # results land in the calling repo's security tab
+  workflow_call: {}
+  # standalone: audit this repo's own workflows
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  zizmor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: "\U0001f308 run zizmor"
+        uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
