@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/settings.yml"
       - ".github/repos/**"
+      - ".github/suborgs/**"
       - "deployment-settings.yml"
   schedule:
     # Drift check every 6 hours

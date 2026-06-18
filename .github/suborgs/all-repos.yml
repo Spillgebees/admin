@@ -1,0 +1,101 @@
+# Settings applied to EVERY repository in the org via a "suborg" matching all
+# repos (`*`). The `admin` and `.github` repos are excluded globally in
+# deployment-settings.yml, so they are not touched here.
+#
+# Why a suborg instead of the org-level `rulesets:` key in settings.yml?
+#   - On the GitHub Free plan, organization-level rulesets are unavailable
+#     (the org rulesets API returns 404).
+#   - safe-settings creates an *org* ruleset when `rulesets:` lives in
+#     settings.yml, and strips it before per-repo processing -- so it never
+#     reaches the repos.
+#   - Defining `rulesets:` in a suborg/repo config makes safe-settings create a
+#     *repository* ruleset on each matched repo. Repository rulesets ARE
+#     available for free on public repos (all our repos are public).
+#
+# Reference: https://docs.github.com/en/rest/repos/rules#create-a-repository-ruleset
+
+# Match all repositories in the org.
+suborgrepos:
+  - "*"
+
+# ---------------------------------------------------------------------------
+# Default-branch protection (replaces classic branch protection)
+# ---------------------------------------------------------------------------
+# Key difference from the old `enforce_admins: false` branch protection:
+# bypass_mode `pull_request` lets the org admin bypass the PR *requirements*
+# (e.g. merge without an approval, merge their own PR, skip a stuck check) but
+# does NOT let them push directly to the default branch -- a direct push is not
+# a pull request, so the `pull_request` rule blocks it for everyone, admins
+# included. This closes the "accidental push to main" hole that
+# `enforce_admins: false` left open.
+rulesets:
+  - name: default-branch-protection
+    target: branch
+    enforcement: active
+    conditions:
+      ref_name:
+        include:
+          - "~DEFAULT_BRANCH"
+        exclude: []
+    bypass_actors:
+      # Org admins (owners) can bypass -- but only within a pull request.
+      - actor_id: 1
+        actor_type: OrganizationAdmin
+        bypass_mode: pull_request
+    rules:
+      # Require a pull request before merging. This is also what blocks direct
+      # pushes to the default branch.
+      - type: pull_request
+        parameters:
+          required_approving_review_count: 1
+          dismiss_stale_reviews_on_push: true
+          require_code_owner_review: true
+          require_last_push_approval: true
+          required_review_thread_resolution: true
+      # Linear history -- mirrors the old required_linear_history.
+      - type: required_linear_history
+      # Block force pushes (non-fast-forward) -- mirrors allow_force_pushes:false
+      - type: non_fast_forward
+      # Block deletion of the default branch -- mirrors allow_deletions: false.
+      - type: deletion
+    # Required status checks are intentionally omitted: they vary per repo and
+    # are not centrally defined. Add a `required_status_checks` rule in a
+    # per-repo override (.github/repos/<repo>.yml) when a repo needs them.
+
+# ---------------------------------------------------------------------------
+# Org-standard issue/PR labels (synced to every repo)
+# ---------------------------------------------------------------------------
+# WARNING: safe-settings manages labels declaratively -- any label on a repo
+# that is NOT listed here will be DELETED. This list is the single source of
+# truth for org labels.
+#
+# Colors are the GitHub default-label palette; names/descriptions are the
+# org's customized set.
+labels:
+  - name: "✨ improvement"
+    color: a2eeef
+    description: new feature or improvement upon existing features
+  - name: "❌ non-issue"
+    color: e4e669
+    description: not a real issue
+  - name: "❓ question"
+    color: d876e3
+    description: if you just have a question
+  - name: "🆘 help wanted"
+    color: "008672"
+    description: extra set of hands or eyes needed
+  - name: "🐛 bug"
+    color: d73a4a
+    description: something's broken
+  - name: "🐣️ good first issue"
+    color: 7057ff
+    description: good for noobs
+  - name: "📝 docs"
+    color: 0075ca
+    description: improve documentation
+  - name: "🔁 duplicate"
+    color: cfd3d7
+    description: duplicate of other issue
+  - name: "🤷 wontfix"
+    color: ffffff
+    description: accepted as an issue but won't be fixed
