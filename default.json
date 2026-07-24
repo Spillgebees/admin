@@ -148,10 +148,7 @@
       "groupName": "Tailwind CSS"
     },
     {
-      "description": "Group Biome linting and formatting packages into a single PR.",
-      "matchManagers": [
-        "npm"
-      ],
+      "description": "Group Biome packages and schema versions into a single PR.",
       "matchPackageNames": [
         "/^@biomejs\\//"
       ],
