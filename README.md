@@ -20,13 +20,13 @@ The workflow requires a **GitHub App** installed on the Spillgebees organization
 - **Repository**: Administration (R&W), Checks (R&W), Commit statuses (R&W), Contents (R&W), Issues (R&W), Metadata (Read), Pull requests (R&W)
 - **Organization**: Administration (R&W), Members (R&W)
 
-Configure these in the repo's Actions settings:
+Configure these in the repo's Actions settings. The private key goes in the `safe-settings` environment, whose deployment branches are restricted to `main`, so only the sync on `main` can read it:
 
 | Type | Name | Value |
 |---|---|---|
 | Variable | `SAFE_SETTINGS_GH_ORG` | `Spillgebees` |
 | Variable | `SAFE_SETTINGS_APP_ID` | GitHub App ID |
-| Secret | `SAFE_SETTINGS_PRIVATE_KEY` | GitHub App private key (`.pem` contents) |
+| Environment secret (`safe-settings`) | `SAFE_SETTINGS_PRIVATE_KEY` | GitHub App private key (`.pem` contents) |
 
 ### What it enforces
 

@@ -24,6 +24,12 @@ jobs:
   safe-settings-sync:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The private key lives in this environment, which only `main` may use, so
+    # workflow runs from other branches can't read it. `deployment: false`
+    # keeps the 6-hourly runs out of the deployments list.
+    environment:
+      name: safe-settings
+      deployment: false
     permissions:
       contents: read
     env:
