@@ -100,6 +100,9 @@ labels:
   - name: "📝 docs"
     color: 0075ca
     description: improve documentation
+  - name: "🔒 security"
+    color: ee0701
+    description: security fix or vulnerability report
   - name: "🔁 duplicate"
     color: cfd3d7
     description: duplicate of other issue
