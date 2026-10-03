@@ -45,12 +45,19 @@ rulesets:
     rules:
       # Require a pull request before merging. This is also what blocks direct
       # pushes to the default branch.
+      #
+      # Approvals are off while the owner is the only person with write access:
+      # requiring one only blocks the owner's own PRs, and bypassing breaks
+      # stacked PR merges. When collaborators get write access, set the count
+      # back to 1 and re-enable code owner review and last push approval
+      # (CODEOWNERS lists the owner). The owner keeps merging via the admin
+      # bypass.
       - type: pull_request
         parameters:
-          required_approving_review_count: 1
+          required_approving_review_count: 0
           dismiss_stale_reviews_on_push: true
-          require_code_owner_review: true
-          require_last_push_approval: true
+          require_code_owner_review: false
+          require_last_push_approval: false
           required_review_thread_resolution: true
       # Linear history -- mirrors the old required_linear_history.
       - type: required_linear_history

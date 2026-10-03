@@ -35,10 +35,8 @@ Configure these in the repo's Actions settings:
 - Auto-merge enabled
 
 **Default-branch ruleset** (`default-branch-protection`, defined in `.github/suborgs/all-repos.yml`, applied to every repo):
-- Require a pull request with 1 approval before merging
+- Require a pull request before merging (no approvals required while the owner is the only person with write access; see the comment in `all-repos.yml`)
 - Dismiss stale reviews on new push
-- Require CODEOWNERS review
-- Require approval from someone other than the last pusher
 - Require conversation resolution
 - Require linear history
 - Block force pushes and branch deletion
