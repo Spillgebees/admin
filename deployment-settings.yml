@@ -1,7 +1,13 @@
 # safe-settings runtime configuration
 # Reference: https://github.com/github/safe-settings#restricting-safe-settings-to-specific-repos
-
+#
+# `admin` is managed like every other repo even though upstream excludes it by
+# default. It holds the org app's private key, so it needs the same ruleset.
+# A broken ruleset can't lock it out, org owners can always edit or delete
+# repository rulesets in the UI.
+#
+# Patterns are unanchored regexes in safe-settings 2.1.17, so this also skips
+# any repo whose name contains "github" after any character.
 restrictedRepos:
   exclude:
-    - admin
     - .github

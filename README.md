@@ -5,8 +5,9 @@ Central configuration hub for the [Spillgebees](https://github.com/Spillgebees) 
 ## What's in here
 
 - **Renovate shared preset** (`default.json`) — extended by all repos via `local>Spillgebees/admin`
-- **safe-settings** (`.github/settings.yml`, `.github/suborgs/*.yml`, `.github/repos/*.yml`) — enforces repository settings, a default-branch ruleset, and labels across all org repos via [github/safe-settings](https://github.com/github/safe-settings)
+- **safe-settings** (`.github/settings.yml`, `.github/suborgs/*.yml`, optional per-repo `.github/repos/<repo>.yml`) — enforces repository settings, a default-branch ruleset, and labels across all org repos via [github/safe-settings](https://github.com/github/safe-settings)
 - **GitHub Actions workflow** (`.github/workflows/safe-settings-sync.yml`) — runs safe-settings on a schedule (every 6 hours), on config changes, and on manual trigger
+- **Reusable zizmor workflow** (`.github/workflows/zizmor.yml`) audits GitHub Actions workflows, org repos call it with `uses: Spillgebees/admin/.github/workflows/zizmor.yml@<sha>`
 
 ## safe-settings
 
@@ -19,13 +20,13 @@ The workflow requires a **GitHub App** installed on the Spillgebees organization
 - **Repository**: Administration (R&W), Checks (R&W), Commit statuses (R&W), Contents (R&W), Issues (R&W), Metadata (Read), Pull requests (R&W)
 - **Organization**: Administration (R&W), Members (R&W)
 
-Configure these in the repo's Actions settings:
+Configure these in the repo's Actions settings. The private key goes in the `safe-settings` environment, whose deployment branches are restricted to `main`, so only the sync on `main` can read it:
 
 | Type | Name | Value |
 |---|---|---|
 | Variable | `SAFE_SETTINGS_GH_ORG` | `Spillgebees` |
 | Variable | `SAFE_SETTINGS_APP_ID` | GitHub App ID |
-| Secret | `SAFE_SETTINGS_PRIVATE_KEY` | GitHub App private key (`.pem` contents) |
+| Environment secret (`safe-settings`) | `SAFE_SETTINGS_PRIVATE_KEY` | GitHub App private key (`.pem` contents) |
 
 ### What it enforces
 
@@ -70,7 +71,7 @@ To add repo-specific settings (e.g., required status checks), create `.github/re
 
 | Trigger | When |
 |---|---|
-| Push to `main` | When `.github/settings.yml`, `.github/repos/**`, or `deployment-settings.yml` changes |
+| Push to `main` | When `.github/settings.yml`, `.github/suborgs/**`, `.github/repos/**`, `deployment-settings.yml`, or the sync workflow changes |
 | Cron | Every 6 hours (drift prevention) |
 | Manual | `workflow_dispatch` — trigger from the Actions tab |
 

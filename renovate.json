@@ -1,6 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>Spillgebees/renovate-config"
+    "local>Spillgebees/admin"
+  ],
+  "packageRules": [
+    {
+      "description": "safe-settings 2.1.17 doesn't run on Node 25+ because a jwa dependency uses the removed SlowBuffer. Lift this when safe-settings is upgraded.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchDepNames": [
+        "node"
+      ],
+      "allowedVersions": "<=24"
+    }
   ]
 }

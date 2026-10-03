@@ -7,6 +7,7 @@ on:
       - ".github/settings.yml"
       - ".github/repos/**"
       - ".github/suborgs/**"
+      - ".github/workflows/safe-settings-sync.yml"
       - "deployment-settings.yml"
   schedule:
     # Drift check every 6 hours
@@ -23,28 +24,39 @@ jobs:
   safe-settings-sync:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The private key lives in this environment, which only `main` may use, so
+    # workflow runs from other branches can't read it. `deployment: false`
+    # keeps the 6-hourly runs out of the deployments list.
+    environment:
+      name: safe-settings
+      deployment: false
     permissions:
       contents: read
     env:
-      SAFE_SETTINGS_VERSION: "2.1.17"
+      # Held at 2.1.17 because 2.1.18 renames repos (github/safe-settings#901)
+      # and 2.1.19 to 2.1.21 crash in full-sync (github/safe-settings#955).
+      # Pinned by SHA since upstream re-creates release tags and this code runs
+      # with the org app's private key.
+      SAFE_SETTINGS_REF: ff7a65655d33006b9820479df0a9e1057a8927e4 # 2.1.17
       SAFE_SETTINGS_CODE_DIR: ${{ github.workspace }}/.safe-settings-code
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           repository: github/safe-settings
-          ref: ${{ env.SAFE_SETTINGS_VERSION }}
+          ref: ${{ env.SAFE_SETTINGS_REF }}
           path: ${{ env.SAFE_SETTINGS_CODE_DIR }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          # 2.1.17 breaks on Node 25+, a jwa dependency uses the removed SlowBuffer
+          node-version: 24
 
-      - run: npm install
+      - run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
         working-directory: ${{ env.SAFE_SETTINGS_CODE_DIR }}
 
       - run: npm run full-sync
