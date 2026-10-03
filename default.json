@@ -162,20 +162,6 @@
         "github-actions"
       ],
       "groupName": "GitHub Actions"
-    },
-    {
-      "description": "Automerge minor and patch updates for npm devDependencies. These are build/dev tools that don't affect production bundles and are safe to merge automatically.",
-      "matchManagers": [
-        "npm"
-      ],
-      "matchDepTypes": [
-        "devDependencies"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "automerge": true
     }
   ]
 }
