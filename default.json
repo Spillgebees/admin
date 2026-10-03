@@ -3,7 +3,8 @@
   "description": "Shared Renovate preset for all Spillgebees projects. Stack-agnostic base supporting .NET, TypeScript, and mixed repositories.",
   "extends": [
     "config:best-practices",
-    "customManagers:biomeVersions"
+    "customManagers:biomeVersions",
+    "customManagers:dockerfileVersions"
   ],
   "schedule": [
     "every weekday"
