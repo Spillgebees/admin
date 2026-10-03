@@ -4,7 +4,8 @@
   "extends": [
     "config:best-practices",
     "customManagers:biomeVersions",
-    "customManagers:dockerfileVersions"
+    "customManagers:dockerfileVersions",
+    "customManagers:githubActionsVersions"
   ],
   "schedule": [
     "every weekday"
