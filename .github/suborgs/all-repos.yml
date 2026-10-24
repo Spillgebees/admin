@@ -38,35 +38,25 @@ rulesets:
           - "~DEFAULT_BRANCH"
         exclude: []
     bypass_actors:
-      # Org admins (owners) can bypass -- but only within a pull request.
+      # Org admins can bypass only within a pull request. They can merge
+      # their own PRs without an approval, but can't push directly.
       - actor_id: 1
         actor_type: OrganizationAdmin
         bypass_mode: pull_request
     rules:
-      # Only bypass actors may update the default branch, and merging a pull
-      # request counts as an update. With 0 required approvals, anyone with
-      # write access (including GitHub Apps with Contents write, e.g. agent
-      # bots or CodeRabbit) could otherwise merge any open pull request.
-      # The org admin's `pull_request` bypass still lets them merge PRs
-      # through the merge box's bypass option, but not push directly.
-      - type: update
-        parameters:
-          update_allows_fetch_and_merge: false
-      # Require a pull request before merging. This is also what blocks direct
-      # pushes to the default branch.
+      # Merging needs a code owner approval. CODEOWNERS lists only the owner
+      # and apps can't be code owners, so bot approvals never count. A push or
+      # a merge base change after the approval dismisses it, so an app with
+      # Contents write can only merge the commits the owner approved.
       #
-      # Approvals are off while the owner is the only person with write access:
-      # requiring one only blocks the owner's own PRs, and bypassing breaks
-      # stacked PR merges. When collaborators get write access, set the count
-      # back to 1 and re-enable code owner review and last push approval
-      # (CODEOWNERS lists the owner). The owner keeps merging via the admin
-      # bypass, which the `update` rule above already requires.
+      # Without a CODEOWNERS file the code owner check does nothing and any
+      # write-access approval counts, apps included.
       - type: pull_request
         parameters:
-          required_approving_review_count: 0
+          required_approving_review_count: 1
           dismiss_stale_reviews_on_push: true
-          require_code_owner_review: false
-          require_last_push_approval: false
+          require_code_owner_review: true
+          require_last_push_approval: true
           required_review_thread_resolution: true
       # Linear history -- mirrors the old required_linear_history.
       - type: required_linear_history
@@ -77,6 +67,30 @@ rulesets:
     # Required status checks are intentionally omitted: they vary per repo and
     # are not centrally defined. Add a `required_status_checks` rule in a
     # per-repo override (.github/repos/<repo>.yml) when a repo needs them.
+
+  # Only bypass actors may create, move or delete tags. Release workflows
+  # build from the release's tag, so otherwise anyone with Contents write
+  # could tag a commit of their choosing and release it.
+  - name: tag-protection
+    target: tag
+    enforcement: active
+    conditions:
+      ref_name:
+        include:
+          - "~ALL"
+        exclude: []
+    bypass_actors:
+      # `always`, a tag is never created through a pull request.
+      - actor_id: 1
+        actor_type: OrganizationAdmin
+        bypass_mode: always
+    rules:
+      - type: creation
+      - type: update
+        parameters:
+          update_allows_fetch_and_merge: false
+      - type: deletion
+      - type: non_fast_forward
 
 # ---------------------------------------------------------------------------
 # Org-standard issue/PR labels (synced to every repo)

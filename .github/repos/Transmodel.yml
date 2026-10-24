@@ -1,0 +1,15 @@
+# safe-settings deletes any environment not listed here, secrets included.
+# See "Environments" in the README.
+environments:
+  # Release publish job. Tags only, and the reviewer also covers releases
+  # published from a draft or on an existing tag.
+  - name: nuget
+    reviewers:
+      - id: 15004223
+        type: User
+    deployment_branch_policy:
+      protected_branches: false
+      custom_branch_policies:
+        - type: tag
+          names:
+            - "**/*"

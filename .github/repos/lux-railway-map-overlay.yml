@@ -1,0 +1,10 @@
+# safe-settings deletes any environment not listed here, secrets included.
+# See "Environments" in the README.
+environments:
+  # The deploy job in `publish-image.yml`. Only `main` can deploy, no
+  # reviewer since the job also runs on a schedule.
+  - name: coolify
+    deployment_branch_policy:
+      protected_branches: false
+      custom_branch_policies:
+        - main
