@@ -81,10 +81,10 @@ To add repo-specific settings (e.g., required status checks), create `.github/re
 
 safe-settings only manages the org, so `igotinfected` repos get the ruleset by hand from [`rulesets/personal-default-branch-protection.json`](rulesets/personal-default-branch-protection.json). It has the same `update`, `pull_request` (0 approvals), `non_fast_forward` and `deletion` rules, without the org's linear history and conversation resolution. Bypass goes to the `igotinfected` user (`15004223`) with mode `pull_request`, since `OrganizationAdmin` doesn't exist on personal repos.
 
-Apply it to one repo:
+Apply it to one repo, replacing `REPO_NAME`:
 
 ```sh
-gh api --method POST repos/igotinfected/<repo>/rulesets --input rulesets/personal-default-branch-protection.json
+gh api --method POST repos/igotinfected/REPO_NAME/rulesets --input rulesets/personal-default-branch-protection.json
 ```
 
 Or import the file under **Settings → Rules → Rulesets → New ruleset → Import a ruleset**. Rulesets on a free personal account only work on public repos. Bot apps never go on the bypass list.
