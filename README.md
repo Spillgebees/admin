@@ -62,7 +62,8 @@ publish:
     - id: login
       uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
       with:
-        user: NUGET_USERNAME
+        # nuget.org profile name, not the email address
+        user: ${{ vars.NUGET_USER }}
     - run: dotnet nuget push "*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
       env:
         NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
@@ -168,12 +169,12 @@ echo '{"deployment_branch_policy":{"protected_branches":false,"custom_branch_pol
 gh api --method POST repos/OWNER/REPO_NAME/environments/ENV_NAME/deployment-branch-policies -f name=main -f type=branch
 ```
 
-A release environment limited to tags, with you as reviewer (`USER_ID` from `gh api user -q .id`):
+A release environment limited to tags, with you as reviewer. `**/*` matches every tag, `*` alone would skip tags with a `/`:
 
 ```sh
-echo '{"reviewers":[{"type":"User","id":USER_ID}],"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}' \
+gh api user -q '{reviewers:[{type:"User",id:.id}],deployment_branch_policy:{protected_branches:false,custom_branch_policies:true}}' \
   | gh api --method PUT repos/OWNER/REPO_NAME/environments/nuget --input -
-gh api --method POST repos/OWNER/REPO_NAME/environments/nuget/deployment-branch-policies -f name='*' -f type=tag
+gh api --method POST repos/OWNER/REPO_NAME/environments/nuget/deployment-branch-policies -f name='**/*' -f type=tag
 ```
 
 ## Renovate

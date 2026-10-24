@@ -20,4 +20,4 @@ environments:
       custom_branch_policies:
         - type: tag
           names:
-            - "*"
+            - "**/*"
