@@ -36,17 +36,17 @@ Required status checks aren't set centrally since check names differ per repo. A
 
 ### Tags and releases
 
-The tag ruleset covers every tag, only bypass actors can create, move or delete one. Release workflows build from the release's tag, so a bot with Contents write can't tag a commit of its choosing and release it.
+The tag ruleset lets only bypass actors create, move or delete tags. Release workflows build from the release's tag, so a bot with Contents write can't tag a commit of its choosing and release it.
 
 A bot can still publish a draft release, or re-create a release on an existing tag. That's why publish jobs also run in an environment with the owner as required reviewer, see below.
 
 ### Secrets
 
-Anyone who can push a branch can push a workflow that reads every repo and org secret, and that only takes Contents and Workflows write. So publish and deploy secrets go in [environments](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments), never at repo or org level:
+Pushing a branch only takes Contents and Workflows write, and a workflow on that branch can read every repo and org secret. So publish and deploy secrets go in [environments](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments), never at repo or org level:
 
 - release jobs use an environment limited to tags, with the owner as required reviewer
 - deploy jobs on the default branch use an environment limited to it, with a reviewer only if nothing scheduled deploys through it
-- `github-pages` is limited to the default branch, a leftover `gh-pages` branch rule would let anyone who can push a `gh-pages` branch deploy the site
+- `github-pages` is limited to the default branch. A leftover `gh-pages` rule would let anyone who can push that branch deploy the site
 
 For NuGet, [trusted publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing) removes the API key entirely. Pin the nuget.org policy to the repo, the workflow file and the release environment, so only a job the environment let through gets a short-lived key:
 
@@ -104,8 +104,6 @@ Configure these in this repo's Actions settings. The private key goes in the `sa
 
 **Labels** (`.github/suborgs/all-repos.yml`), the org label set. safe-settings **deletes** any label that isn't in the list.
 
-The org admin's `pull_request` bypass lets them merge their own PR or get past a stuck check, while a direct push still fails for everyone since it isn't a pull request. Classic branch protection with `enforce_admins: false` would let admins push straight to `main`.
-
 ### Environments
 
 safe-settings 2.1.17 manages environments per repo. Once a repo has an `environments:` list, safe-settings **deletes** every environment on that repo that isn't in it, secrets included. So:
@@ -155,7 +153,7 @@ gh api --method POST repos/OWNER/REPO_NAME/rulesets --input rulesets/personal-ta
 
 Or import them under **Settings → Rules → Rulesets → New ruleset → Import a ruleset**. Never put bot apps on the bypass list. Rulesets layer with classic branch protection, so remove any classic rule once the ruleset is in place.
 
-Then add `CODEOWNERS` with `* @OWNER`, and stop `GITHUB_TOKEN` from approving PRs, the org-level setting doesn't reach personal repos:
+Then add `CODEOWNERS` with `* @OWNER`, and stop `GITHUB_TOKEN` from approving PRs. The org-level setting doesn't apply to personal repos:
 
 ```sh
 gh api --method PUT repos/OWNER/REPO_NAME/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=false

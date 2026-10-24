@@ -1,6 +1,5 @@
-# safe-settings deletes every environment on this repo that is not listed
-# here, together with its secrets. Add new environments here before creating
-# them by hand. See "Environments" in the README.
+# safe-settings deletes any environment not listed here, secrets included.
+# See "Environments" in the README.
 environments:
   # The deploy job in `publish-image.yml`. Only `main` can deploy, no
   # reviewer since the job also runs on a schedule.

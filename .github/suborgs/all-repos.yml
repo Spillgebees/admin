@@ -38,20 +38,16 @@ rulesets:
           - "~DEFAULT_BRANCH"
         exclude: []
     bypass_actors:
-      # Org admins (owners) can bypass, but only within a pull request, so
-      # they can merge their own PRs without an approval but can't push.
+      # Org admins can bypass only within a pull request. They can merge
+      # their own PRs without an approval, but can't push directly.
       - actor_id: 1
         actor_type: OrganizationAdmin
         bypass_mode: pull_request
     rules:
-      # Merging needs an approval from a code owner. CODEOWNERS lists only the
-      # owner and apps can't be code owners, so bot approvals never count. The
-      # owner approves bot PRs and merges them normally (or lets auto-merge do
-      # it), and merges their own PRs through the `pull_request` bypass.
-      #
-      # An app with Contents write can merge a PR once it's approved. Any push
-      # after the approval, or a base change that moves the merge base,
-      # dismisses it again, so only the approved commits can merge.
+      # Merging needs a code owner approval. CODEOWNERS lists only the owner
+      # and apps can't be code owners, so bot approvals never count. A push or
+      # a merge base change after the approval dismisses it, so an app with
+      # Contents write can only merge the commits the owner approved.
       #
       # Without a CODEOWNERS file the code owner check does nothing and any
       # write-access approval counts, apps included.
@@ -73,9 +69,8 @@ rulesets:
     # per-repo override (.github/repos/<repo>.yml) when a repo needs them.
 
   # Only bypass actors may create, move or delete tags. Release workflows
-  # build from the release's tag, so without this anyone with Contents write,
-  # bot apps included, could tag a commit of their choosing and release it.
-  # Tag formats differ per repo, so this covers every tag.
+  # build from the release's tag, so otherwise anyone with Contents write
+  # could tag a commit of their choosing and release it.
   - name: tag-protection
     target: tag
     enforcement: active

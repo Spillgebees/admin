@@ -1,10 +1,8 @@
-# safe-settings deletes every environment on this repo that is not listed
-# here, together with its secrets. Add new environments here before creating
-# them by hand. See "Environments" in the README.
+# safe-settings deletes any environment not listed here, secrets included.
+# See "Environments" in the README.
 environments:
-  # The publish job on `release: published`. Only tags can deploy, and the
-  # tag ruleset limits tags to bypass actors. The reviewer also catches a
-  # release published on an existing tag or from a draft.
+  # Release publish job. Tags only, and the reviewer also covers releases
+  # published from a draft or on an existing tag.
   - name: nuget
     reviewers:
       - id: 15004223
