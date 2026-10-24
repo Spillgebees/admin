@@ -78,6 +78,32 @@ rulesets:
     # are not centrally defined. Add a `required_status_checks` rule in a
     # per-repo override (.github/repos/<repo>.yml) when a repo needs them.
 
+  # Only bypass actors may create, move or delete tags. Publishing a release
+  # runs the NuGet publish workflows from the release's tag, so without this
+  # anyone with Contents write (including bot apps) could tag a commit of
+  # their choosing and publish it. Release tags differ per repo (`0.24.0`,
+  # `v1.0.0-rc.3`), so this covers every tag.
+  - name: tag-protection
+    target: tag
+    enforcement: active
+    conditions:
+      ref_name:
+        include:
+          - "~ALL"
+        exclude: []
+    bypass_actors:
+      # `always`, a tag is never created through a pull request.
+      - actor_id: 1
+        actor_type: OrganizationAdmin
+        bypass_mode: always
+    rules:
+      - type: creation
+      - type: update
+        parameters:
+          update_allows_fetch_and_merge: false
+      - type: deletion
+      - type: non_fast_forward
+
 # ---------------------------------------------------------------------------
 # Org-standard issue/PR labels (synced to every repo)
 # ---------------------------------------------------------------------------

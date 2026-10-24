@@ -1,0 +1,17 @@
+# safe-settings deletes every environment on this repo that is not listed
+# here, together with its secrets. Add new environments here before creating
+# them by hand. See "Environments" in the README.
+environments:
+  # The publish job on `release: published`. Only tags can deploy, and the
+  # tag ruleset limits tags to bypass actors. The reviewer also catches a
+  # release published on an existing tag or from a draft.
+  - name: nuget
+    reviewers:
+      - id: 15004223
+        type: User
+    deployment_branch_policy:
+      protected_branches: false
+      custom_branch_policies:
+        - type: tag
+          names:
+            - "*"
