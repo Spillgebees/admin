@@ -43,6 +43,15 @@ rulesets:
         actor_type: OrganizationAdmin
         bypass_mode: pull_request
     rules:
+      # Only bypass actors may update the default branch, and merging a pull
+      # request counts as an update. With 0 required approvals, anyone with
+      # write access (including GitHub Apps with Contents write, e.g. agent
+      # bots or CodeRabbit) could otherwise merge any open pull request.
+      # The org admin's `pull_request` bypass still lets them merge PRs
+      # through the merge box's bypass option, but not push directly.
+      - type: update
+        parameters:
+          update_allows_fetch_and_merge: false
       # Require a pull request before merging. This is also what blocks direct
       # pushes to the default branch.
       #
@@ -51,7 +60,7 @@ rulesets:
       # stacked PR merges. When collaborators get write access, set the count
       # back to 1 and re-enable code owner review and last push approval
       # (CODEOWNERS lists the owner). The owner keeps merging via the admin
-      # bypass.
+      # bypass, which the `update` rule above already requires.
       - type: pull_request
         parameters:
           required_approving_review_count: 0

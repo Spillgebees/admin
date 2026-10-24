@@ -5,6 +5,7 @@ Central configuration hub for the [Spillgebees](https://github.com/Spillgebees) 
 ## What's in here
 
 - **Renovate shared preset** (`default.json`) — extended by all repos via `local>Spillgebees/admin`
+- **Personal repo ruleset** (`rulesets/personal-default-branch-protection.json`), the same default-branch rules for `igotinfected` repos, applied by hand
 - **safe-settings** (`.github/settings.yml`, `.github/suborgs/*.yml`, optional per-repo `.github/repos/<repo>.yml`) — enforces repository settings, a default-branch ruleset, and labels across all org repos via [github/safe-settings](https://github.com/github/safe-settings)
 - **GitHub Actions workflow** (`.github/workflows/safe-settings-sync.yml`) — runs safe-settings on a schedule (every 6 hours), on config changes, and on manual trigger
 - **Reusable zizmor workflow** (`.github/workflows/zizmor.yml`) audits GitHub Actions workflows, org repos call it with `uses: Spillgebees/admin/.github/workflows/zizmor.yml@<sha>`
@@ -36,12 +37,13 @@ Configure these in the repo's Actions settings. The private key goes in the `saf
 - Auto-merge enabled
 
 **Default-branch ruleset** (`default-branch-protection`, defined in `.github/suborgs/all-repos.yml`, applied to every repo):
+- Restrict updates: only bypass actors can update the default branch, and merging a PR counts as an update. Without this, anyone with write access, including GitHub Apps with Contents write such as agent bots, could merge PRs since no approvals are required
 - Require a pull request before merging (no approvals required while the owner is the only person with write access; see the comment in `all-repos.yml`)
 - Dismiss stale reviews on new push
 - Require conversation resolution
 - Require linear history
 - Block force pushes and branch deletion
-- **Org admin can bypass PR requirements but cannot push directly to the default branch** (bypass mode `pull_request`)
+- **Org admin can bypass PR requirements but cannot push directly to the default branch** (bypass mode `pull_request`). Because of the update restriction, every merge goes through the merge box's bypass option, auto-merge most likely won't complete, and stacked PRs merge one at a time from the bottom
 - Status checks are not centrally required — add a `required_status_checks` rule per repo when needed
 
 **Labels** (`.github/suborgs/all-repos.yml`) — the org-standard issue/PR label set, synced to every repo. This is the single source of truth: safe-settings **deletes** any label on a repo that is not in the list.
@@ -74,6 +76,20 @@ To add repo-specific settings (e.g., required status checks), create `.github/re
 | Push to `main` | When `.github/settings.yml`, `.github/suborgs/**`, `.github/repos/**`, `deployment-settings.yml`, or the sync workflow changes |
 | Cron | Every 6 hours (drift prevention) |
 | Manual | `workflow_dispatch` — trigger from the Actions tab |
+
+## Personal repos
+
+safe-settings only manages the org, so `igotinfected` repos get the ruleset by hand from [`rulesets/personal-default-branch-protection.json`](rulesets/personal-default-branch-protection.json). It has the same `update`, `pull_request` (0 approvals), `non_fast_forward` and `deletion` rules, without the org's linear history and conversation resolution. Bypass goes to the `igotinfected` user (`15004223`) with mode `pull_request`, since `OrganizationAdmin` doesn't exist on personal repos.
+
+Apply it to one repo:
+
+```sh
+gh api --method POST repos/igotinfected/<repo>/rulesets --input rulesets/personal-default-branch-protection.json
+```
+
+Or import the file under **Settings → Rules → Rulesets → New ruleset → Import a ruleset**. Rulesets on a free personal account only work on public repos. Bot apps never go on the bypass list.
+
+Rulesets layer with classic branch protection, so drop any classic rule on the repo once the ruleset is in place (`burser` and `MatomoProvider` still have one).
 
 ## Renovate
 
